@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Лутбокс</title>
+<link rel="icon" type="image/png" href="ico.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1020;
+    --accent:#4cc9f0;
+    --accent-2:#8bd3ff;
+    --text:#e8f0ff;
+    --muted:rgba(232,240,255,0.6);
+    --card-radius:18px; 
+    
+    --common-bg: #dfefff; --common-text: #042025;
+    --rare-bg: #ffdca8; --rare-text: #2b1300;
+    --super-bg: #e6d3ff; --super-text: #2b0f3a;
+    --leg-bg: #ffc1d8; --leg-text: #3a081a;
+
+    --select-bg: #131b2e; 
+    --select-border: #2d3b55; 
+    --error: #ff4c4c;
+    --success: #4cff9a;
+  }
+  
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,sans-serif;}
+  
+  body{
+    margin:0;
+    background: radial-gradient(circle at 50% 0%, #1a253a 0%, var(--bg) 100%);
+    color:var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    width: 720px;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 0 20px;
+    flex: 1;
+  }
+
+  header { 
+      text-align:center; 
+      margin-bottom:30px; 
+      position: relative;
+  }
+  .auth-corner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 10px;
+  }
+
+  .title-main { font-weight:900; font-size:32px; letter-spacing:-1px; margin-bottom: 5px; }
+  .title-sub { font-size:15px; color:var(--muted); font-weight: 500; }
+
+  .score-panel {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 15px 25px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+  }
+  .score-item { text-align: center; }
+  .score-label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+  .score-value { font-size: 28px; font-weight: 900; color: var(--accent); line-height: 1; }
+
+  .panel {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--card-radius);
+    padding:30px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden; 
+  }
+
+  .controls-grid {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    margin-bottom:25px;
+    position: relative; z-index: 2;
+  }
+
+  label {
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom:8px;
+  }
+
+  select, input.auth-input {
+    width:100%;
+    border-radius:12px;
+    padding:14px 16px;
+    background: var(--select-bg); 
+    border: 2px solid var(--select-border);
+    color: white;
+    font-weight:700;
+    font-size:16px;
+    appearance: none;
+    outline: none;
+    transition: all 0.2s;
+  }
+  select {
+    cursor:pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+  }
+  select:hover, input.auth-input:focus { border-color: var(--accent); }
+
+  .action-row {
+    display:flex;
+    gap:20px;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    position: relative; z-index: 2;
+  }
+
+  .btn-open {
+    flex:1;
+    height: 60px;
+    border-radius:16px;
+    font-weight:900;
+    font-size:18px;
+    text-transform: uppercase;
+    letter-spacing:1px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#0b152b;
+    border:none;
+    box-shadow: 0 10px 30px rgba(76,201,240,0.2);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s, filter 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-open:hover { box-shadow: 0 15px 40px rgba(76,201,240,0.3); transform: translateY(-2px); }
+  .btn-open:active { transform: translateY(1px); }
+  
+  .btn-open.locked {
+      background: #2d3b55;
+      color: var(--muted);
+      cursor: not-allowed;
+      box-shadow: none;
+  }
+  .btn-open.locked:hover { transform: none; box-shadow: none; }
+
+  .last-drop-info { width: 160px; text-align: center; }
+  .pill {
+    padding:6px 12px;
+    border-radius:20px;
+    font-weight:800;
+    font-size:13px;
+    display:inline-block;
+  }
+  .pill.Обычный { background: var(--common-bg); color: var(--common-text); }
+  .pill.Редкий { background: var(--rare-bg); color: var(--rare-text); }
+  .pill.Супер-редкий { background: var(--super-bg); color: var(--super-text); }
+  .pill.Легендарный { background: var(--leg-bg); color: var(--leg-text); }
+  .pill.none { background: rgba(255,255,255,0.1); color: var(--muted); }
+
+  .feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .feed-title { font-size: 20px; font-weight: 800; }
+  
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
+
+  .btn-admin {
+      border-color: rgba(76, 201, 240, 0.4);
+      color: var(--accent);
+  }
+  .btn-admin:hover {
+      background: rgba(76, 201, 240, 0.1);
+      border-color: var(--accent);
+  }
+
+  .card-list { display: flex; flex-direction: column; gap: 10px; }
+  
+  .drop-card {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideDown 0.3s ease-out;
+  }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+  .drop-left { display:flex; align-items:center; gap:12px; flex: 1; }
+  .drop-info { display:flex; flex-direction:column; }
+  .drop-title { font-weight:700; font-size:15px; color:white; }
+  .drop-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+  
+  .reward-grid {
+    display: grid;
+    grid-template-columns: 110px 80px 80px 60px;
+    gap: 15px; 
+    text-align: right;
+  }
+  .reward-item { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      white-space: nowrap; 
+  }
+
+  .reward-item b { display:block; color:white; font-size:13px; line-height: 1.2; }
+  .reward-item span { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; font-weight: 700; }
+
+  .modal-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active { display: flex; opacity: 1; }
+
+  .modal-window {
+    background: #131b2e;
+    border: 1px solid rgba(255,255,255,0.15);
+    width: 700px;
+    max-width: 90%;
+    max-height: 85vh;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .modal-overlay.active .modal-window { transform: scale(1); }
+  
+  .modal-window.mini { width: 400px; }
+
+  .modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-title { font-size: 20px; font-weight: 800; color: white; }
+  .btn-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 28px; cursor: pointer; line-height: 1; padding: 0;
+  }
+  .btn-close:hover { color: white; }
+
+  .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+  .styled-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .styled-table th {
+    text-align: left; color: var(--muted); padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 12px; text-transform: uppercase;
+  }
+  .styled-table td {
+    padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text); vertical-align: middle;
+  }
+  .styled-table tr:last-child td { border-bottom: none; }
+  
+  .stat-group { margin-bottom: 30px; }
+  .stat-group h4 { margin: 0 0 10px 0; color: var(--accent); font-size: 16px; }
+
+  .tabs-container {
+    padding: 15px 20px 0;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid transparent;
+    color: var(--muted);
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0b152b;
+    box-shadow: 0 4px 15px rgba(76,201,240,0.25);
+  }
+  
+  .auth-form { display: flex; flex-direction: column; gap: 15px; }
+  .auth-msg { text-align: center; font-size: 13px; margin-top: 10px; min-height: 20px; }
+  .auth-msg.error { color: var(--error); }
+  .auth-msg.success { color: var(--success); }
+  .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #0b152b;
+      font-weight: 800;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+  }
+  .btn-submit:hover { background: var(--accent-2); }
+
+  .burst-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+  .particle { position: absolute; border-radius: 50%; opacity: 0; }
+
+  .score-control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.03);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+  }
+  .score-control-label { font-weight: 700; }
+  .score-control-actions { display: flex; align-items: center; gap: 15px; }
+  .btn-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.1); border-color: white; }
+  .score-display-val { font-size: 20px; font-weight: 800; min-width: 40px; text-align: center; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+  @media(max-width: 650px){
+    .container { margin: 20px auto; padding: 0 15px; }
+    .controls-grid { grid-template-columns: 1fr; }
+    .action-row { flex-direction: column-reverse; }
+    .drop-card { flex-direction: column; align-items: stretch; gap: 15px; }
+    .reward-grid { grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 6px; }
+    .auth-corner { position: relative; text-align: center; margin-bottom: 20px; right: auto; top: auto; justify-content: center; }
+  }
+  @media(max-width: 480px){
+    .reward-grid { grid-template-columns: 1fr 1fr; }
+    .btn-group { width: 100%; }
+    .btn-secondary { flex: 1; text-align: center; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="auth-corner">
+        <button class="btn-secondary btn-admin" id="btnScoreAdmin" style="display:none;" onclick="openModal('modalScoreAdmin')">⚙️ Счёт</button>
+        <button class="btn-secondary btn-admin" id="btnAuth" onclick="toggleAuth()">👤 Войти</button>
+    </div>
+    <div class="title-main">Лутбокс</div>
+    <div class="title-sub">Маленький сайтик для открытия кейсов</div>
+  </header>
+
+  <div class="score-panel">
+      <div class="score-item">
+          <div class="score-label">Всего побед</div>
+          <div class="score-value" id="dispTotalWins">0</div>
+      </div>
+      <div class="score-item">
+          <div class="score-label">Стрик</div>
+          <div class="score-value" id="dispStreak">0</div>
+      </div>
+  </div>
+
+  <div class="panel">
+    <div class="burst-container" id="burstArea"></div>
+    
+    <div class="controls-grid">
+      <div>
+        <label>Фракция</label>
+        <select id="factionSelect">
+          <option value="Rifa">Rifa</option>
+          <option value="Ballas">Ballas</option>
+          <option value="Vagos">Vagos</option>
+          <option value="Aztecas">Aztecas</option>
+          <option value="Grove">Grove</option>
+        </select>
+      </div>
+      <div>
+        <label>Тип ящика</label>
+        <select id="boxSelect">
+          <option value="3">Бронза</option>
+          <option value="5" selected>Серебро</option>
+          <option value="7">Золото</option>
+          <option value="10">Платина</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-open locked" id="btnOpen">
+          <span>🔒</span> Требуется вход
+      </button>
+      <div class="last-drop-info">
+        <label style="margin-bottom:6px">Результат</label>
+        <div id="lastDropPill" class="pill none">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feed-header">
+    <div class="feed-title">Последние открытия</div>
+    <div class="btn-group">
+      <button class="btn-secondary" id="btnLootTable">📋 Список наград</button>
+      <button class="btn-secondary" id="btnStats">📊 Статистика</button>
+      <button class="btn-secondary" id="btnHistory">📜 История</button>
+    </div>
+  </div>
+
+  <div class="card-list" id="feedList">
+    <div style="text-align:center; color:var(--muted); padding:20px; font-size:14px;">Загрузка истории...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalAuth">
+    <div class="modal-window mini">
+      <div class="modal-header">
+        <div class="modal-title">Вход для администратора</div>
+        <button class="btn-close" onclick="closeModal('modalAuth')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-form">
+            <div>
+                <label>Логин</label>
+                <input type="text" id="authLogin" class="auth-input" placeholder="Введите логин...">
+            </div>
+            <div>
+                <label>Пароль</label>
+                <input type="password" id="authPass" class="auth-input" placeholder="Введите пароль...">
+            </div>
+            <button class="btn-submit" onclick="performLogin()">Войти в систему</button>
+            <div class="auth-msg" id="authMsg"></div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalScoreAdmin">
+    <div class="modal-window mini">
+      <div class="modal-header">
+        <div class="modal-title">Управление счётом</div>
+        <button class="btn-close" onclick="closeModal('modalScoreAdmin')">&times;</button>
+      </div>
+      <div class="modal-body">
+          <div class="score-control-row">
+              <div class="score-control-label">Всего побед</div>
+              <div class="score-control-actions">
+                  <button class="btn-icon" onclick="updateWinStats('total', -1)">-</button>
+                  <div class="score-display-val" id="adminValTotal">0</div>
+                  <button class="btn-icon" onclick="updateWinStats('total', 1)">+</button>
+              </div>
+          </div>
+          <div class="score-control-row">
+            <div class="score-control-label">Стрик побед</div>
+            <div class="score-control-actions">
+                <button class="btn-icon" onclick="updateWinStats('streak', -1)">-</button>
+                <div class="score-display-val" id="adminValStreak">0</div>
+                <button class="btn-icon" onclick="updateWinStats('streak', 1)">+</button>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalStats">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div class="modal-title">Общая Статистика</div>
+      <button class="btn-close" onclick="closeModal('modalStats')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="stat-group">
+        <h4>📦 По редкости</h4>
+        <table class="styled-table" id="tableStatsRarity">
+          <thead><tr><th>Редкость</th><th style="text-align:right">Количество</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="stat-group">
+        <h4>🏆 По фракциям</h4>
+        <table class="styled-table" id="tableStatsFaction">
+          <thead><tr><th>Фракция</th><th style="text-align:right">Открыто кейсов</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div style="text-align:right; margin-top:10px; color:var(--muted); font-size:13px;">
+        Всего открытий: <b id="totalOpensCount" style="color:white">0</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalHistory">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div class="modal-title">Полная История</div>
+      <button class="btn-close" onclick="closeModal('modalHistory')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Инфо</th>
+            <th>Редкость</th>
+            <th>Награды</th>
+          </tr>
+        </thead>
+        <tbody id="fullHistoryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalLootTable">
+  <div class="modal-window" style="width: 800px;">
+    <div class="modal-header">
+      <div class="modal-title">Таблица наград</div>
+      <button class="btn-close" onclick="closeModal('modalLootTable')">&times;</button>
+    </div>
+    <div class="tabs-container" id="lootTabs">
+    </div>
+    <div class="modal-body">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>Редкость</th>
+            <th>Шанс</th>
+            <th>Деньги</th>
+            <th>Металл</th>
+            <th>Патроны</th>
+            <th>Баллы</th>
+          </tr>
+        </thead>
+        <tbody id="lootTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const AUTH_USER_ENC = "QURNSU4="; 
+const AUTH_PASS_ENC = "MTIzcWF6";
+let isAdmin = false; 
+
+let LOOT_DATA = null;
+
+const JSONBIN_SECRET_KEY = '$2a$10$kY6C1hc9SroEySNBLOvHd.STE7CmUftQyDwwxxFw.p0UV6.gVoiCS'; 
+const JSONBIN_BIN_ID_HISTORY = '6928da42d0ea881f40047b44';
+const JSONBIN_BIN_ID_STATS = '692b1fced0ea881f4008066d';
+
+const JSONBIN_URL_HISTORY = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_HISTORY}`;
+const JSONBIN_URL_STATS = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_STATS}`;
+
+let history = [];
+let winStats = { total: 0, streak: 0 };
+
+const MSK_OPTIONS = {
+  timeZone: 'Europe/Moscow',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+};
+
+const btnOpen = document.getElementById('btnOpen');
+const btnStats = document.getElementById('btnStats');
+const btnHistory = document.getElementById('btnHistory');
+const btnLootTable = document.getElementById('btnLootTable');
+const feedList = document.getElementById('feedList');
+const lastDropPill = document.getElementById('lastDropPill');
+const burstArea = document.getElementById('burstArea');
+const btnScoreAdmin = document.getElementById('btnScoreAdmin');
+
+const dispTotalWins = document.getElementById('dispTotalWins');
+const dispStreak = document.getElementById('dispStreak');
+const adminValTotal = document.getElementById('adminValTotal');
+const adminValStreak = document.getElementById('adminValStreak');
+
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const fmtFull = (n) => fmt(n);
+
+async function loadLootData() {
+    try {
+        const response = await fetch('data.json');
+        if (!response.ok) throw new Error('Failed to load JSON');
+        LOOT_DATA = await response.json();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function checkSession() {
+    if (sessionStorage.getItem('admin_session') === 'true') {
+        setAdminState(true);
+    } else {
+        setAdminState(false);
+    }
+}
+
+function setAdminState(active) {
+    isAdmin = active;
+    const authBtn = document.getElementById('btnAuth');
+    
+    if (active) {
+        btnOpen.classList.remove('locked');
+        btnOpen.innerHTML = 'Открыть ящик';
+        authBtn.innerText = '🚪 Выйти';
+        authBtn.style.color = '#ff4c4c';
+        authBtn.style.borderColor = '#ff4c4c';
+        btnScoreAdmin.style.display = 'inline-flex';
+    } else {
+        btnOpen.classList.add('locked');
+        btnOpen.innerHTML = '<span>🔒</span> Требуется вход';
+        authBtn.innerText = '👤 Войти';
+        authBtn.style.color = '';
+        authBtn.style.borderColor = '';
+        btnScoreAdmin.style.display = 'none';
+    }
+}
+
+function toggleAuth() {
+    if(isAdmin) {
+        sessionStorage.removeItem('admin_session');
+        setAdminState(false);
+    } else {
+        document.getElementById('authLogin').value = '';
+        document.getElementById('authPass').value = '';
+        document.getElementById('authMsg').innerText = '';
+        openModal('modalAuth');
+    }
+}
+
+function performLogin() {
+    const loginInput = document.getElementById('authLogin').value.trim();
+    const passInput = document.getElementById('authPass').value.trim();
+    const msgBox = document.getElementById('authMsg');
+
+    msgBox.innerText = 'Проверка...';
+    msgBox.className = 'auth-msg';
+
+    if (btoa(loginInput) === AUTH_USER_ENC && btoa(passInput) === AUTH_PASS_ENC) {
+        msgBox.innerText = 'Успешно!';
+        msgBox.className = 'auth-msg success';
+        sessionStorage.setItem('admin_session', 'true');
+        setTimeout(() => {
+            closeModal('modalAuth');
+            setAdminState(true);
+        }, 800);
+    } else {
+        msgBox.innerText = 'Неверный логин или пароль';
+        msgBox.className = 'auth-msg error';
+    }
+}
+
+function weightedPick(arr) {
+  const total = arr.reduce((acc, i) => acc + i.chance, 0);
+  let r = Math.random() * total;
+  for (const item of arr) {
+    if ((r -= item.chance) <= 0) return item;
+  }
+  return arr[0];
+}
+
+function getRarityColors(rarity) {
+  switch(rarity){
+    case 'Обычный': return ['#dfefff', '#a3d4ff'];
+    case 'Редкий': return ['#ffdca8', '#ffbd59'];
+    case 'Супер-редкий': return ['#e6d3ff', '#b380ff'];
+    case 'Легендарный': return ['#ffc1d8', '#ff5c8d'];
+    default: return ['#ffffff', '#cccccc'];
+  }
+}
+
+async function loadServerData() {
+  loadLootData();
+  loadServerHistory();
+  loadWinStats();
+}
+
+async function loadServerHistory() {
+  try {
+    const res = await fetch(JSONBIN_URL_HISTORY + '/latest', {
+      method: 'GET',
+      headers: { 'X-Access-Key': JSONBIN_SECRET_KEY, 'Cache-Control': 'no-cache' }
+    });
+    if (!res.ok) throw new Error(`Error: ${res.status}`);
+    const result = await res.json();
+    const data = result.record;
+    if(Array.isArray(data)) {
+      history = data; 
+      history.sort((a, b) => b.id - a.id);
+      renderFeed();
+    }
+  } catch (error) {
+    console.error(error);
+    feedList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:14px;">Не удалось загрузить историю.</div>';
+  }
+}
+
+async function loadWinStats() {
+    try {
+        const res = await fetch(JSONBIN_URL_STATS + '/latest', {
+            method: 'GET',
+            headers: { 'X-Access-Key': JSONBIN_SECRET_KEY, 'Cache-Control': 'no-cache' }
+        });
+        if(res.ok) {
+            const result = await res.json();
+            if(result.record) {
+                winStats = result.record;
+                updateStatsUI();
+            }
+        }
+    } catch(e) { console.error(e); }
+}
+
+async function saveWinStats() {
+    try {
+        await fetch(JSONBIN_URL_STATS, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Access-Key': JSONBIN_SECRET_KEY,
+                'X-Bin-Versioning': 'false'
+            },
+            body: JSON.stringify(winStats)
+        });
+    } catch(e) { console.error(e); }
+}
+
+function updateStatsUI() {
+    dispTotalWins.innerText = winStats.total;
+    dispStreak.innerText = winStats.streak;
+    adminValTotal.innerText = winStats.total;
+    adminValStreak.innerText = winStats.streak;
+}
+
+function updateWinStats(type, delta) {
+    if (!isAdmin) return;
+    if(type === 'total') {
+        winStats.total += delta;
+        if(winStats.total < 0) winStats.total = 0;
+    } else if (type === 'streak') {
+        winStats.streak += delta;
+        if(winStats.streak < 0) winStats.streak = 0;
+    }
+    updateStatsUI();
+    saveWinStats();
+}
+
+function renderFeed() {
+    feedList.innerHTML = '';
+    if(history.length > 0) {
+        history.slice(0, 5).forEach(item => renderFeedCard(item));
+        const last = history[0];
+        lastDropPill.className = `pill ${last.rarity}`;
+        lastDropPill.innerText = last.rarity;
+    } else {
+        feedList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:14px;">Нажмите кнопку, чтобы открыть ящик</div>';
+    }
+}
+
+async function updateHistoryOnServer() {
+  try {
+    await fetch(JSONBIN_URL_HISTORY, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Access-Key': JSONBIN_SECRET_KEY,
+        'X-Bin-Versioning': 'false'
+      },
+      body: JSON.stringify(history)
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+btnOpen.onclick = () => {
+  if (!isAdmin) {
+      toggleAuth(); 
+      return; 
+  }
+  
+  if (!LOOT_DATA) {
+      alert('Данные лута не загружены! Проверьте файл data.json и консоль.');
+      return;
+  }
+
+  const faction = document.getElementById('factionSelect').value;
+  const level = document.getElementById('boxSelect').value;
+  const levelText = document.getElementById('boxSelect').options[document.getElementById('boxSelect').selectedIndex].text.split(' ')[0];
+
+  const pool = LOOT_DATA[level];
+  if(!pool) return;
+
+  const item = weightedPick(pool);
+  const maxId = history.length > 0 ? Math.max(...history.map(h => h.id)) : 0;
+  const mskTime = new Date().toLocaleTimeString('ru-RU', MSK_OPTIONS);
+
+  const drop = {
+    id: maxId + 1,
+    faction: faction,
+    levelName: levelText,
+    rarity: item.rarity,
+    money: rand(item.money[0], item.money[1]),
+    metal: rand(item.metal[0], item.metal[1]),
+    ammo: rand(item.ammo[0], item.ammo[1]),
+    points: rand(item.points[0], item.points[1]),
+    time: mskTime
+  };
+
+  history.unshift(drop);
+  updateHistoryOnServer();
+  
+  lastDropPill.className = `pill ${drop.rarity}`;
+  lastDropPill.innerText = drop.rarity;
+  renderFeedCard(drop);
+  createBurst(getRarityColors(drop.rarity));
+};
+
+function renderFeedCard(drop) {
+  const div = document.createElement('div');
+  div.className = 'drop-card';
+  div.innerHTML = `
+    <div class="drop-left">
+      <div class="pill ${drop.rarity}">${drop.rarity}</div>
+      <div class="drop-info">
+        <div class="drop-title">${drop.faction} • ${drop.levelName}</div>
+        <div class="drop-sub">${drop.time}</div> 
+      </div>
+    </div>
+    <div class="reward-grid">
+      <div class="reward-item"><b>${fmtFull(drop.money)}$</b><span>Деньги</span></div>
+      <div class="reward-item"><b>${fmtFull(drop.metal)}</b><span>Металл</span></div>
+      <div class="reward-item"><b>${fmtFull(drop.ammo)}</b><span>Патроны</span></div>
+      <div class="reward-item"><b>${fmtFull(drop.points)}</b><span>Баллы</span></div>
+    </div>
+  `;
+  
+  if(feedList.children[0]?.innerText.includes('Загрузка') || feedList.children[0]?.innerText.includes('Не удалось')) {
+    feedList.innerHTML = '';
+  }
+  feedList.prepend(div);
+  if(feedList.children.length > 5) feedList.lastElementChild.remove();
+}
+
+function openModal(id) {
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+document.querySelectorAll('.auth-input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performLogin();
+    });
+});
+
+btnHistory.onclick = async () => {
+  await loadServerHistory(); 
+  const tbody = document.getElementById('fullHistoryBody');
+  tbody.innerHTML = '';
+  
+  if(history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--muted)">История пуста</td></tr>';
+  } else {
+    history.forEach((drop, index) => {
+      const displayId = history.length - index; 
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:var(--muted); font-size:12px;">#${displayId}</td>
+        <td>
+           <div style="font-weight:700; color:white;">${drop.faction}</div>
+           <div style="font-size:11px; color:var(--muted);">${drop.levelName}</div>
+        </td>
+        <td><span class="pill ${drop.rarity}" style="font-size:11px; padding:4px 8px;">${drop.rarity}</span></td>
+        <td>
+           <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:12px;">
+             <div>💵 ${fmt(drop.money)}</div>
+             <div>🔩 ${fmt(drop.metal)}</div>
+             <div>🔫 ${fmt(drop.ammo)}</div>
+             <div>⭐ ${fmt(drop.points)}</div>
+           </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  openModal('modalHistory');
+};
+
+btnStats.onclick = () => {
+  const rarityCounts = { "Обычный":0, "Редкий":0, "Супер-редкий":0, "Легендарный":0 };
+  const factionCounts = { "Rifa":0, "Ballas":0, "Vagos":0, "Aztecas":0, "Grove":0 };
+
+  history.forEach(d => {
+    if(rarityCounts[d.rarity] !== undefined) rarityCounts[d.rarity]++;
+    if(factionCounts[d.faction] !== undefined) factionCounts[d.faction]++;
+  });
+
+  const tbRarity = document.getElementById('tableStatsRarity').querySelector('tbody');
+  tbRarity.innerHTML = Object.entries(rarityCounts).map(([k, v]) => `
+    <tr>
+      <td><span class="pill ${k}" style="font-size:12px">${k}</span></td>
+      <td style="text-align:right; font-weight:bold; color:white;">${v}</td>
+    </tr>
+  `).join('');
+
+  const tbFaction = document.getElementById('tableStatsFaction').querySelector('tbody');
+  tbFaction.innerHTML = Object.entries(factionCounts).map(([k, v]) => `
+    <tr>
+      <td style="font-weight:600">${k}</td>
+      <td style="text-align:right; font-weight:bold; color:white;">${v}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('totalOpensCount').innerText = history.length;
+  openModal('modalStats');
+};
+
+btnLootTable.onclick = () => {
+  const currentBox = document.getElementById('boxSelect').value;
+  renderLootTable(currentBox);
+  openModal('modalLootTable');
+}
+
+function renderLootTable(activeLevel) {
+  const tabsContainer = document.getElementById('lootTabs');
+  const tbody = document.getElementById('lootTableBody');
+  
+  if (!LOOT_DATA) return;
+
+  tabsContainer.innerHTML = '';
+  Object.keys(LOOT_DATA).sort((a,b) => a-b).forEach(lvl => {
+    const btn = document.createElement('button');
+    btn.className = `tab-btn ${lvl == activeLevel ? 'active' : ''}`;
+    const boxNames = {3:'Бронза',5:'Серебро',7:'Золото',10:'Платина'};
+    btn.innerText = boxNames[lvl] || `Level ${lvl}`;
+    btn.onclick = () => {
+      document.querySelectorAll('#lootTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLootTable(lvl);
+    };
+    tabsContainer.appendChild(btn);
+  });
+
+  tbody.innerHTML = '';
+
+  const data = LOOT_DATA[activeLevel];
+  if (!data) return;
+
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td><span class="pill ${item.rarity}" style="font-size:12px;">${item.rarity}</span></td>
+      <td style="color:var(--accent); font-weight:700;">${item.chance}%</td>
+      <td>${fmt(item.money[0])} – ${fmt(item.money[1])}</td>
+      <td>${fmt(item.metal[0])} – ${fmt(item.metal[1])}</td>
+      <td>${fmt(item.ammo[0])} – ${fmt(item.ammo[1])}</td>
+      <td>${fmt(item.points[0])} – ${fmt(item.points[1])}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function createBurst(colors) {
+  for(let i=0; i<25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    p.style.left = '50%';
+    p.style.top = '50%';
+    const size = Math.random() * 6 + 4;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = Math.random() * 100 + 50;
+    const tx = Math.cos(angle) * velocity;
+    const ty = Math.sin(angle) * velocity - 60; 
+
+    p.animate([
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+    ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)', fill: 'forwards' });
+    
+    burstArea.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+}
+
+window.addEventListener('load', () => {
+    checkSession();
+    loadServerData();
+});
+</script>
+</body>
+</html>
